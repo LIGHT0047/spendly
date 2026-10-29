@@ -25,7 +25,7 @@
         </p>
         <div class="hero-actions">
             <a href="{{ url_for('register') }}" class="btn-primary">Create free account</a>
-            <a href="{{ url_for('login') }}" class="btn-ghost">See how it works</a>
+            <button type="button" class="btn-ghost" id="howItWorksBtn">See how it works</button>
         </div>
     </div>
     <div class="hero-visual">
@@ -104,4 +104,68 @@
     </div>
 </section>
 
+<!-- ------------------------------------------------------------------ -->
+<!-- "See how it works" — video modal                                    -->
+<!-- ------------------------------------------------------------------ -->
+<div class="video-modal" id="videoModal" aria-hidden="true">
+    <div class="video-modal-overlay" data-modal-close></div>
+    <div class="video-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="videoModalTitle">
+        <div class="video-modal-header">
+            <h2 class="video-modal-title" id="videoModalTitle">See how it works</h2>
+            <button type="button" class="video-modal-close" aria-label="Close video" data-modal-close>&times;</button>
+        </div>
+        <div class="video-modal-frame">
+            <!-- Placeholder video — replace the data-src URL with your own later -->
+            <iframe id="videoModalFrame"
+                    data-src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                    title="Spendly — see how it works"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // "See how it works" video modal — vanilla JS only, no libraries.
+    (function () {
+        var modal = document.getElementById('videoModal');
+        var frame = document.getElementById('videoModalFrame');
+        var openBtn = document.getElementById('howItWorksBtn');
+        var lastFocused = null;
+
+        function openModal() {
+            lastFocused = document.activeElement;
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';   // no scrolling behind the modal
+            frame.setAttribute('src', frame.getAttribute('data-src')); // load + play video
+            modal.querySelector('.video-modal-close').focus();
+        }
+
+        function closeModal() {
+            if (!modal.classList.contains('is-open')) return;
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            frame.removeAttribute('src');               // unloads the iframe → video stops
+            if (lastFocused) lastFocused.focus();
+        }
+
+        openBtn.addEventListener('click', openModal);
+
+        // The close button and the overlay both carry data-modal-close,
+        // so this covers the X button and clicking outside the dialog.
+        modal.addEventListener('click', function (e) {
+            if (e.target.closest('[data-modal-close]')) closeModal();
+        });
+
+        // Bonus: Escape closes it too
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeModal();
+        });
+    })();
+</script>
 {% endblock %}
